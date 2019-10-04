@@ -1,0 +1,42 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: hackazone-waf
+  namespace: default
+  labels:
+    app: hackazone-waf
+    cis.f5.com/as3-tenant: HACKAZONE
+    cis.f5.com/as3-app: hackazone_app
+    cis.f5.com/as3-pool: hackazone_pool
+spec:
+  selector:
+    app: hackazone-waf
+  ports:
+  - name: hackazone
+    protocol: TCP
+    port: 80
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hackazone-waf-deploy
+  namespace: default
+  labels:
+    app: hackazone-waf
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hackazone-waf
+  template:
+    metadata:
+      labels:
+        app: hackazone-waf
+    spec:
+      containers:
+      - name: hackazone
+        image: mutzel/all-in-one-hackazon:postinstall
+        ports:
+        - containerPort: 80

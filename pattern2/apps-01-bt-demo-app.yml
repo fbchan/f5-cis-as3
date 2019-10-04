@@ -1,0 +1,42 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: bt-demo-app
+  namespace: default
+  labels:
+    app: bt-demo-app
+    cis.f5.com/as3-tenant: BT_DEMO
+    cis.f5.com/as3-app: bt_demo_app
+    cis.f5.com/as3-pool: bt_demo_pool
+spec:
+  selector:
+    app: bt-demo-app
+  ports:
+  - name: bt-demo-app
+    protocol: TCP
+    port: 8080
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bt-demo-app-deploy
+  namespace: default
+  labels:
+    app: bt-demo-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: bt-demo-app
+  template:
+    metadata:
+      labels:
+        app: bt-demo-app
+    spec:
+      containers:
+      - name: bt-demo-app
+        image: foobz/bt-demo-app
+        ports:
+        - containerPort: 8080

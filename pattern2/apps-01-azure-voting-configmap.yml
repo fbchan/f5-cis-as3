@@ -1,0 +1,86 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: f5-as3-az-vote
+  namespace: default
+  labels:
+    f5type: virtual-server
+    as3: "true"
+data:
+  template: |
+    {
+        "class": "AS3",
+        "declaration": {
+            "class": "ADC",
+            "schemaVersion": "3.10.0",
+            "id": "urn:uuid:33045210-3ab8-4636-9b2a-c98d22ab915d",
+            "label": "http",
+            "remark": "Simple HTTP application with RR pool",
+            "Common": {
+               "class": "Tenant",
+               "Shared": {
+                 "class": "Application",
+                 "template": "shared",
+                 "XFF_HTTP_Profile": {
+                 "class": "HTTP_Profile",
+                 "xForwardedFor": true
+                 }
+               }
+            },
+            "AZ_VOTE": {
+                "class": "Tenant",
+                "az_vote_app": {
+                    "class": "Application",
+                    "template": "generic",
+                    "az_vote_ingress": {
+                        "class": "Service_HTTPS",
+                        "virtualAddresses": [
+                            "10.2.1.9"
+                        ],
+                        "virtualPort": 443,
+                        "remark":"ingress: azure voting",
+                        "pool": "azvote_pool",
+                        "serverTLS": "pTlsServer_Local",
+                        "profileHTTP":{"use": "/Common/Shared/XFF_HTTP_Profile"},
+                        "policyWAF":{"use": "My_ASM_Policy"},
+                        "securityLogProfiles": [
+                        {
+                            "bigip": "/Common/Log illegal requests"
+                        }
+                        ]
+                    },
+                    "azvote_pool": {
+                        "class": "Pool",
+                        "monitors": [
+                            "http"
+                        ],
+                        "members": [
+                            {
+                                "servicePort": 80,
+                                "serverAddresses": []
+                            }
+                        ]
+                    },
+                    "My_ASM_Policy": {
+                      "class": "WAF_Policy",
+                      "url": "https://gitlab.foobz.com.au/fbchan/awaf-policies/raw/master/awaf-OWASP-Top10.xml",
+                      "ignoreChanges": true
+                    },
+                    "pTlsServer_Local": {
+                      "class": "TLS_Server",
+                      "label": "simplest decl requires just cert",
+                      "certificates": [
+                        {
+                          "certificate": "tlsserver_local_cert"
+                        }
+                      ]
+                    },
+                    "tlsserver_local_cert": {
+                      "class": "Certificate",
+                      "certificate": {"bigip":"/Common/default.crt"},
+                      "privateKey": {"bigip":"/Common/default.key"}
+                    }
+                }
+            }
+        }
+    }
