@@ -35,7 +35,7 @@ spec:
             "--bigip-partition=AS3",
             #"--namespace=default",
             "--insecure=true",
-            "--pool-member-type=cluster"
-            #"--manage-ingress=false",
+            "--pool-member-type=cluster",
+            "--manage-ingress=false"
             #"--agent=as3"
             ]
