@@ -33,9 +33,9 @@ spec:
             "--bigip-password=$(BIGIP_PASSWORD)",
             "--bigip-url=https://10.2.1.30:8443",
             "--bigip-partition=AS3",
-            "--namespace=default",
+            #"--namespace=default",
             "--insecure=true",
-            "--pool-member-type=cluster",
-            "--manage-ingress=false",
-            "--agent=as3"
+            "--pool-member-type=cluster"
+            #"--manage-ingress=false",
+            #"--agent=as3"
             ]
